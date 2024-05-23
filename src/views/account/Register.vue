@@ -1,71 +1,35 @@
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useUsersStore, useAlertStore } from "@/stores";
-
-const firstName = ref("");
-const lastName = ref("");
-const username = ref("");
-const password = ref("");
-const firstNameError = ref("");
-const lastNameError = ref("");
-const usernameError = ref("");
-const passwordError = ref("");
-const isSubmitting = ref(false);
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUsersStore, useAlertStore } from '@/stores';
 
 const router = useRouter();
 const usersStore = useUsersStore();
 const alertStore = useAlertStore();
 
-const validateForm = () => {
-  let isValid = true;
+const firstName = ref('');
+const lastName = ref('');
+const username = ref('');
+const password = ref('');
+const isSubmitting = ref(false);
+const form = ref(false);
 
-  if (!firstName.value) {
-    firstNameError.value = "First Name is required";
-    isValid = false;
-  } else {
-    firstNameError.value = "";
-  }
-
-  if (!lastName.value) {
-    lastNameError.value = "Last Name is required";
-    isValid = false;
-  } else {
-    lastNameError.value = "";
-  }
-
-  if (!username.value) {
-    usernameError.value = "Username is required";
-    isValid = false;
-  } else {
-    usernameError.value = "";
-  }
-
-  if (!password.value) {
-    passwordError.value = "Password is required";
-    isValid = false;
-  } else if (password.value.length < 6) {
-    passwordError.value = "Password must be at least 6 characters";
-    isValid = false;
-  } else {
-    passwordError.value = "";
-  }
-
-  return isValid;
-};
+const required = (value) => !!value || 'Field is required';
+const minLength = (value) => value.length >= 6 || 'Password must be at least 6 characters';
 
 const onSubmit = async () => {
-  if (validateForm()) {
+  if (form.value) {
     isSubmitting.value = true;
     try {
-      await usersStore.register({
+      const userData = {
         firstName: firstName.value,
         lastName: lastName.value,
         username: username.value,
         password: password.value,
-      });
-      await router.push("/account/login");
-      alertStore.success("Registration successful");
+      };
+      await usersStore.register(userData);
+      await router.push('/account/login');
+      alertStore.success('Registration successful');
     } catch (error) {
       alertStore.error(error);
     } finally {
@@ -79,44 +43,36 @@ const onSubmit = async () => {
   <v-row class="justify-center">
     <v-col cols="12" md="6">
       <v-card>
-        <v-card-title>
-          <span>Register</span>
-        </v-card-title>
+        <v-card-title>Register</v-card-title>
         <v-card-text>
-          <v-form @submit.prevent="onSubmit">
+          <v-form v-model="form" @submit.prevent="onSubmit">
             <v-text-field
               v-model="firstName"
               label="First Name"
-              :error-messages="[firstNameError]"
+              :rules="[required]"
               required
             ></v-text-field>
             <v-text-field
               v-model="lastName"
               label="Last Name"
-              :error-messages="[lastNameError]"
+              :rules="[required]"
               required
             ></v-text-field>
             <v-text-field
               v-model="username"
               label="Username"
-              :error-messages="[usernameError]"
+              :rules="[required]"
               required
             ></v-text-field>
             <v-text-field
               v-model="password"
               label="Password"
               type="password"
-              :error-messages="[passwordError]"
+              :rules="[required, minLength]"
               required
             ></v-text-field>
-            <v-btn type="submit" :loading="isSubmitting" color="purple"
-              >Register</v-btn
-            >
-            <router-link
-              to="/account/login"
-              class="btn btn-link ml-4 text-decoration-none"
-              >Cancel</router-link
-            >
+            <v-btn :disabled="!form" type="submit" :loading="isSubmitting" color="purple">Register</v-btn>
+            <router-link to="/account/login" class="btn btn-link ml-4 text-decoration-none">Cancel</router-link>
           </v-form>
         </v-card-text>
       </v-card>
