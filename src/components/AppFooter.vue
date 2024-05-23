@@ -28,7 +28,7 @@ const items = [
   {
     title: "Samira's linkedIn",
     icon: `mdi-linkedin`,
-    href: "www.linkedin.com/in/samira-salahshour-aa737219a",
+    href: "https://www.linkedin.com/in/samira-salahshour-aa737219a/",
   },
 
   {
