@@ -17,7 +17,7 @@ To run this project locally, follow these steps:
     ```sh
     git clone https://github.com/samira-salahshour/Vue3-and-Pinia-Sample-Project
     ```
-    Replace `<repository-url>` with the URL of your Git repository.
+    
 
 2. **Navigate to the project directory**:
     ```sh
