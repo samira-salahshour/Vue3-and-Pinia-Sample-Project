@@ -65,7 +65,11 @@ const headers = ref([
             </div>
           </template>
           <template v-slot:no-data>
-            <v-alert type="info" class="mt-4"> No users available. </v-alert>
+            <v-progress-circular
+              indeterminate
+              size="20"
+              color="white"
+            ></v-progress-circular>
           </template>
           <template v-slot:progress>
             <v-progress-linear
