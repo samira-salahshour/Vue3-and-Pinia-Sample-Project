@@ -2,6 +2,8 @@
 
 This project is a simple Vue 3 application that demonstrates the use of Pinia for state management. It includes features for user authentication (login and registration), managing a list of users, and a navigation bar for switching between pages and logging out.
 
+Additionally, the project utilizes a fake backend implemented with local storage to simulate user data persistence. Form validation is also implemented to ensure data integrity and accuracy.
+
 ## Features
 
 - **User Authentication**: Users can log in and register.
