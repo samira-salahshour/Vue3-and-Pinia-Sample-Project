@@ -2,7 +2,6 @@
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
-
 import { useUsersStore, useAlertStore } from "@/stores";
 
 const usersStore = useUsersStore();
@@ -21,11 +20,8 @@ const firstName = ref("");
 const lastName = ref("");
 const username = ref("");
 const password = ref("");
-const firstNameError = ref("");
-const lastNameError = ref("");
-const usernameError = ref("");
-const passwordError = ref("");
 const isSubmitting = ref(false);
+const form = ref(false);
 
 const fetchUser = async () => {
   if (isEditMode.value) {
@@ -46,45 +42,16 @@ const fetchUser = async () => {
 
 watch(isEditMode, fetchUser, { immediate: true });
 
-const validateForm = () => {
-  let isValid = true;
+const required = (value) => !!value || "Field is required";
+const minLength = (value) => value.length >= 6 || "Password must be at least 6 characters";
+const leavePassword = (value) => value.length===0 || value.length >= 6 || "Password must be at least 6 characters";
 
-  if (!firstName.value) {
-    firstNameError.value = "First Name is required";
-    isValid = false;
-  } else {
-    firstNameError.value = "";
-  }
-
-  if (!lastName.value) {
-    lastNameError.value = "Last Name is required";
-    isValid = false;
-  } else {
-    lastNameError.value = "";
-  }
-
-  if (!username.value) {
-    usernameError.value = "Username is required";
-    isValid = false;
-  } else {
-    usernameError.value = "";
-  }
-
-  if (!password.value && !isEditMode.value) {
-    passwordError.value = "Password is required";
-    isValid = false;
-  } else if (password.value && password.value.length < 6) {
-    passwordError.value = "Password must be at least 6 characters";
-    isValid = false;
-  } else {
-    passwordError.value = "";
-  }
-
-  return isValid;
-};
+const passwordRules = computed(() =>
+  isEditMode.value ? [leavePassword] : [required, minLength]
+);
 
 const onSubmit = async () => {
-  if (validateForm()) {
+  if (form.value) {
     isSubmitting.value = true;
     try {
       let message;
@@ -92,7 +59,7 @@ const onSubmit = async () => {
         firstName: firstName.value,
         lastName: lastName.value,
         username: username.value,
-        password: password.value,
+        password: password.value || undefined, 
       };
       if (isEditMode.value) {
         await usersStore.update(user.value.id, userData);
@@ -120,10 +87,7 @@ const onSubmit = async () => {
         <v-card-text>
           <template v-if="loading">
             <div class="text-center m-5">
-              <v-progress-circular
-                indeterminate
-                color="purple"
-              ></v-progress-circular>
+              <v-progress-circular indeterminate color="purple"></v-progress-circular>
             </div>
           </template>
           <template v-else-if="error">
@@ -132,13 +96,13 @@ const onSubmit = async () => {
             </div>
           </template>
           <template v-else>
-            <v-form @submit.prevent="onSubmit">
+            <v-form v-model="form" @submit.prevent="onSubmit">
               <v-row>
                 <v-col cols="12">
                   <v-text-field
                     v-model="firstName"
                     label="First Name"
-                    :error-messages="[firstNameError]"
+                    :rules="[required]"
                     required
                   ></v-text-field>
                 </v-col>
@@ -146,7 +110,7 @@ const onSubmit = async () => {
                   <v-text-field
                     v-model="lastName"
                     label="Last Name"
-                    :error-messages="[lastNameError]"
+                    :rules="[required]"
                     required
                   ></v-text-field>
                 </v-col>
@@ -156,7 +120,7 @@ const onSubmit = async () => {
                   <v-text-field
                     v-model="username"
                     label="Username"
-                    :error-messages="[usernameError]"
+                    :rules="[required]"
                     required
                   ></v-text-field>
                 </v-col>
@@ -165,21 +129,13 @@ const onSubmit = async () => {
                     v-model="password"
                     label="Password"
                     type="password"
-                    :error-messages="[passwordError]"
+                    :rules="passwordRules"
                   ></v-text-field>
-                  <small v-if="isEditMode"
-                    >(Leave blank to keep the same password)</small
-                  >
+                  <small v-if="isEditMode">(Leave blank to keep the same password)</small>
                 </v-col>
               </v-row>
-              <v-btn type="submit" :loading="isSubmitting" color="purple"
-                >Save</v-btn
-              >
-              <router-link
-                to="/users"
-                class="btn btn-link ml-4 text-decoration-none"
-                >Cancel</router-link
-              >
+              <v-btn :disabled="!form" type="submit" :loading="isSubmitting" color="purple">Save</v-btn>
+              <router-link to="/users" class="btn btn-link ml-4 text-decoration-none">Cancel</router-link>
             </v-form>
           </template>
         </v-card-text>
