@@ -21,7 +21,7 @@ To run this project locally, follow these steps:
 
 2. **Navigate to the project directory**:
     ```sh
-    cd vue3-and-pinia-sample-project
+    cd Vue3-and-Pinia-Sample-Project
     ```
 
 3. **Install dependencies**:
