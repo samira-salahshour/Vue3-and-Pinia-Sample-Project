@@ -1,40 +1,25 @@
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores";
-
-const username = ref("");
-const password = ref("");
-const usernameError = ref("");
-const passwordError = ref("");
-const isSubmitting = ref(false);
-const loginError = ref("");
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
+const username = ref('');
+const password = ref('');
+const isSubmitting = ref(false);
+const form = ref(false);
+const loginError = ref('');
+
+const required = (value) => !!value || 'Field is required';
+
 const validateForm = () => {
-  let isValid = true;
-
-  if (!username.value) {
-    usernameError.value = "Username is required";
-    isValid = false;
-  } else {
-    usernameError.value = "";
-  }
-
-  if (!password.value) {
-    passwordError.value = "Password is required";
-    isValid = false;
-  } else {
-    passwordError.value = "";
-  }
-
-  return isValid;
+  return form.value;
 };
 
 const onSubmit = async () => {
-  loginError.value = ""; 
+  loginError.value = "";
 
   if (validateForm()) {
     isSubmitting.value = true;
@@ -58,36 +43,36 @@ const onSubmit = async () => {
   <v-row class="justify-center">
     <v-col cols="12" md="6">
       <v-card>
-        <v-card-title>
-          <span>Login</span>
-        </v-card-title>
+        <v-card-title>Login</v-card-title>
         <v-card-text>
-          <v-form @submit.prevent="onSubmit">
+          <v-form v-model="form" @submit.prevent="onSubmit">
+            <v-alert v-if="loginError" type="error" dismissible>
+              {{ loginError }}
+            </v-alert>
             <v-text-field
               v-model="username"
               label="Username"
-              :error-messages="[usernameError]"
+              :rules="[required]"
               required
             ></v-text-field>
             <v-text-field
               v-model="password"
               label="Password"
               type="password"
-              :error-messages="[passwordError]"
+              :rules="[required]"
               required
             ></v-text-field>
-            <v-alert v-if="loginError" type="error">{{ loginError }}</v-alert>
-            <v-btn type="submit" :loading="isSubmitting" color="purple"
-              >Login</v-btn
-            >
-            <router-link
-              to="/account/register"
-              class="btn btn-link ml-4 text-decoration-none"
-              >Register</router-link
-            >
+            <v-btn :disabled="!form" type="submit" :loading="isSubmitting" color="purple">Login</v-btn>
+            <router-link to="/account/register" class="btn btn-link ml-4 text-decoration-none">Register</router-link>
           </v-form>
         </v-card-text>
       </v-card>
     </v-col>
   </v-row>
 </template>
+
+<style scoped>
+.v-container {
+  margin-top: 50px;
+}
+</style>
